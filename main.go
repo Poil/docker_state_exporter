@@ -99,8 +99,10 @@ func (c *dockerHealthCollector) collectMetrics(ch chan<- prometheus.Metric) {
 		rep := regexp.MustCompile("[^a-zA-Z0-9_]")
 
 		for k, v := range info.Config.Labels {
-			label := strings.ToLower("container_label_" + k)
-			labels[rep.ReplaceAllLiteralString(label, "_")] = v
+			if strings.HasPrefix(k, "com.docker.") {
+				label := strings.ToLower("container_label_" + k)
+				labels[rep.ReplaceAllLiteralString(label, "_")] = v
+			}
 		}
 		labels["id"] = "/docker/" + info.ID
 		labels["image"] = info.Config.Image
