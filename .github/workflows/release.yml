@@ -19,7 +19,7 @@ jobs:
         shell: bash
         if: ${{ steps.cache-go.outputs.cache-hit != 'true' }}
         run: go mod download
-      - uses: wangyoucao577/go-release-action@v1.16
+      - uses: wangyoucao577/go-release-action@v1.40
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           goos: ${{ matrix.goos }}
