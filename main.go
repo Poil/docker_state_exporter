@@ -59,6 +59,12 @@ var (
 	finishedatDesc = descSource{
 		namespace + "finishedat",
 		"Time when the Container finished."}
+	startedsinceDesc = descSource{
+		namespace + "startedsince",
+		"Time since the Container started."}
+	finishedsinceDesc = descSource{
+		namespace + "finishedsince",
+		"Time since the Container finished."}
 	restartcountDesc = descSource{
 		"container_restartcount",
 		"Number of times the container has been restarted"}
@@ -70,6 +76,8 @@ func (c *dockerHealthCollector) Describe(ch chan<- *prometheus.Desc) {
 	ch <- oomkilledDesc.Desc(nil)
 	ch <- startedatDesc.Desc(nil)
 	ch <- finishedatDesc.Desc(nil)
+	ch <- startedsinceDesc.Desc(nil)
+	ch <- finishedsinceDesc.Desc(nil)
 	ch <- restartcountDesc.Desc(nil)
 }
 
@@ -125,10 +133,15 @@ func (c *dockerHealthCollector) collectMetrics(ch chan<- prometheus.Metric) {
 		ch <- prometheus.MustNewConstMetric(oomkilledDesc.Desc(labels), prometheus.GaugeValue, b2f(info.State.OOMKilled))
 		startedat, err := time.Parse(time.RFC3339Nano, info.State.StartedAt)
 		errCheck(err)
+		startedsince := time.Since(startedat)
 		finishedat, err := time.Parse(time.RFC3339Nano, info.State.FinishedAt)
+		errCheck(err)
+		finishedsince := time.Since(finishedat)
 		errCheck(err)
 		ch <- prometheus.MustNewConstMetric(startedatDesc.Desc(labels), prometheus.GaugeValue, float64(startedat.Unix()))
 		ch <- prometheus.MustNewConstMetric(finishedatDesc.Desc(labels), prometheus.GaugeValue, float64(finishedat.Unix()))
+		ch <- prometheus.MustNewConstMetric(startedsinceDesc.Desc(labels), prometheus.GaugeValue, float64(startedsince))
+		ch <- prometheus.MustNewConstMetric(finishedsinceDesc.Desc(labels), prometheus.GaugeValue, float64(finishedsince))
 		ch <- prometheus.MustNewConstMetric(restartcountDesc.Desc(labels), prometheus.GaugeValue, float64(info.RestartCount))
 	}
 }
