@@ -35,6 +35,6 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           goos: ${{ matrix.goos }}
           goarch: ${{ matrix.goarch }}
-          project_path: "."
+          project_path: "./..."
           binary_name: "docker_state_exporter"
           ldflags: "-s -w"
