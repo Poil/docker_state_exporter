@@ -1,0 +1,37 @@
+---
+- name: Get docker-state-exporter checksum
+  ansible.builtin.stat:
+    path: /usr/local/bin/docker_state_exporter
+    checksum_algorithm: "sha256"
+    get_attributes: false
+    get_checksum: true
+    get_mime: false
+  register: checksum
+  check_mode: false
+
+- name: Download docker_state_exporter
+  ansible.builtin.unarchive:
+    src: https://github.com/Poil/docker_state_exporter/releases/download/v0.0.3/docker_state_exporter-v0.0.3-linux-amd64.tar.gz
+    dest: /usr/local/bin
+    remote_src: true
+    mode: '0755'
+    owner: root
+    group: root
+  notify: "restart docker_state_exporter"
+  when: (checksum.stat.exists == false) or (checksum.stat.checksum != "325823b559b3b6f0d55fef921520b6e94c855c9678e80a8d34fbdecce00ea2e0")
+
+- name: Create docker-state-exporter user
+  ansible.builtin.user:
+    name: docker-state-exporter
+    system: true
+    groups: docker
+
+- name: docker_state_exporter SystemD Unit
+  ansible.builtin.template:
+    src: docker-state-exporter.service
+    dest: /etc/systemd/system/docker-state-exporter.service
+    owner: root
+    group: root
+    mode: "0644"
+  notify: "restart docker_state_exporter"
+...

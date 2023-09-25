@@ -1,0 +1,13 @@
+[Unit]
+Description=Docker State Exporter
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=docker-state-exporter
+Group=docker-state-exporter
+Type=simple
+ExecStart=/usr/local/bin/docker_state_exporter -listen-address={{ listen_address|default("localhost:4343") }}
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,14 @@
+---
+- name: Reload systemd daemon
+  ansible.builtin.systemd:
+    daemon_reload: true
+  listen:
+    - "restart docker_state_exporter"
+
+- name: Restart docker-state-exporter
+  ansible.builtin.service:
+    name: docker-state-exporter
+    enabled: true
+    state: restarted
+  listen: "restart docker_state_exporter"
+...
